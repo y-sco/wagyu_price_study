@@ -10,3 +10,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "GitHub Actions成功!"
+
+
+- name: Send PR safely
+  run: |
+    PR_DATA=$(jq -n \
+      --arg number "${{ github.event.pull_request.number }}" \
+      --arg title "${{ github.event.pull_request.title }}" \
+      --arg body "${{ github.event.pull_request.body }}" \
+      '{pr_number:$number,title:$title,body:$body}')
+
+    curl -X POST https://localhost:8888/questions \
+      -H "Content-Type: application/json" \
+      -d "$PR_DATA"
