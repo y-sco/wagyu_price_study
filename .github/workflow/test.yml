@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Send PR Data to Laravel
         run: |
-          curl -X POST https://example.com/api/release \
+          curl -X POST https://localhost:8080/questions \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
             -d '{
