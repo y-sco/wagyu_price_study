@@ -1,25 +1,23 @@
-name: Test Action
+name: Send PR Info
 
 on:
-  push:
-    branches:
-      - main
+  pull_request:
+    types: [closed]
 
 jobs:
-  test:
+  send:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+
     steps:
-      - run: echo "GitHub Actions成功!"
-
-
-- name: Send PR safely
-  run: |
-    PR_DATA=$(jq -n \
-      --arg number "${{ github.event.pull_request.number }}" \
-      --arg title "${{ github.event.pull_request.title }}" \
-      --arg body "${{ github.event.pull_request.body }}" \
-      '{pr_number:$number,title:$title,body:$body}')
-
-    curl -X POST https://localhost:8888/questions \
-      -H "Content-Type: application/json" \
-      -d "$PR_DATA"
+      - name: Send PR Data to Laravel
+        run: |
+          curl -X POST https://example.com/api/release \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
+            -d '{
+              "pr_number": "${{ github.event.pull_request.number }}",
+              "title": "${{ github.event.pull_request.title }}",
+              "body": "${{ github.event.pull_request.body }}",
+              "merged_by": "${{ github.event.pull_request.merged_by.login }}"
+            }'
